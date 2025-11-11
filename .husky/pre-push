@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+default_branch="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || true)"
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [[ -n "${default_branch:-}" && "$remote_ref" = "refs/heads/$default_branch" ]]; then
+    echo "✖ Pushes to the default branch ($default_branch) are blocked."
+    exit 1
+  fi
+done
