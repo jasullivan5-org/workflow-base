@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-default_branch="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || true)"
+default_branch="$(
+  git remote show origin 2>/dev/null | sed -n 's/^[[:space:]]*HEAD branch: //p'
+)"
 current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 if [[ -n "${default_branch:-}" && "$current_branch" = "$default_branch" ]]; then
   echo "✖ Commits to the default branch ($default_branch) are blocked."
