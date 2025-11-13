@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
-default_branch="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || true)"
+
+# Determine the default branch from the 'origin' remote
+default_branch="$(
+  git remote show origin 2>/dev/null | sed -n 's/^[[:space:]]*HEAD branch: //p'
+)"
+
+# If we couldn't detect a default branch, don't block anything
+if [[ -z "$default_branch" ]]; then
+  exit 0
+fi
+
+# Git pipes refs into pre-push as: <local_ref> <local_sha> <remote_ref> <remote_sha>
 while read -r local_ref local_sha remote_ref remote_sha; do
-  if [[ -n "${default_branch:-}" && "$remote_ref" = "refs/heads/$default_branch" ]]; then
+  if [[ "$remote_ref" == "refs/heads/$default_branch" ]]; then
     echo "✖ Pushes to the default branch ($default_branch) are blocked."
+    echo "  Push a feature branch and use a pull request instead."
     exit 1
   fi
 done
