@@ -8,6 +8,8 @@
     "husky": "latest"
   },
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "git:setup": "sh ./git-aliases/setup-run-alias.sh",
+    "postinstall": "node ./git-aliases/postinstall-message.cjs"
   }
 }
